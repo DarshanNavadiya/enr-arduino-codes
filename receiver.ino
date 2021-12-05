@@ -1,45 +1,29 @@
-//Include Libraries
-#include <SPI.h>
-#include <nRF24L01.h>
-#include <RF24.h>
-
-//create an RF24 object
-RF24 radio(9, 8);  // CE, CSN
-
-//address through which two modules communicate.
-const byte address[6] = "00001";
-
-// motor
-const int IN[] = {4, 5, 6, 7};
-
-void setup()
-{
-  while (!Serial);
-    Serial.begin(9600);
-  
-  radio.begin();
-  
-  //set the address
-  radio.openReadingPipe(0, address);
-  
-  //Set module as receiver
-  radio.startListening();
+int INs[] = {2,3,4,5};
+int EN = 6;
+void setup() {
+  pinMode(EN, OUTPUT);
+  Serial.begin(9600);
 }
 
-void writeToMotor(char logic, int index){
-  if(logic == 'H')
-  digitalWrite(IN[index], HIGH);
-  else
-  digitalWrite(IN[index], LOW);
-}
-void loop()
-{
-  //Read the data if available in buffer
-  if (radio.available())
-  {
-    char command[10] = {0};
-    radio.read(&command, sizeof(command));
-    for(int i=0;i<4;i++)
-      writeToMotor(command[i], i);    
+void loop() {
+  if(INs[0] == 1 && INs[1] == 0 && INs[2] == 1 && INs[3] == 0){
+    Serial.begin("Forward");
+    analogWrite(EN, 800);
   }
+  else if(INs[0] == 1 && INs[1] == 0 && INs[2] == 0 && INs[3] == 1){
+    Serial.begin("RIGHT");
+    analogWrite(EN, 600);
+  }
+  else if(INs[0] == 0 && INs[1] == 1 && INs[2] == 1 && INs[3] == 0){
+    Serial.begin("Left");
+    analogWrite(EN, 600);
+  }
+  else{
+    Serial.begin("Stop");
+    analogWrite(EN, 800);
+  }
+  
+  
+  
+  delay(1000);
 }
